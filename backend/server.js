@@ -10,8 +10,10 @@ const db = require('./src/config/db.config.js');
 
 const Role = db.role;
 
+
 const cors = require("cors");
 app.use(cors());
+
 
 // email, username, password, number, company_id 
   

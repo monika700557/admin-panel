@@ -14,10 +14,10 @@ const Tblregister = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    register_number: {
-      type: Sequelize.STRING,
-      allowNull: true,
-    },
+    // register_number: {
+    //   type: Sequelize.STRING,
+    //   allowNull: true,
+    // },
     country_id: {
       type: Sequelize.INTEGER,
       allowNull: true,

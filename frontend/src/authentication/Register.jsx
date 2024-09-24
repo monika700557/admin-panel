@@ -1,17 +1,17 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 import { InvoiceLogo1 } from "../_components/Imagepath";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { alphaNumericPattern, emailrgx } from "../assets/constant";
-import PropTypes from "prop-types";
+import axios from 'axios';
 
 const schema = yup
   .object({
     name: yup
       .string()
-      .matches(alphaNumericPattern, "please enther valid name")
+      .matches(alphaNumericPattern, "please enter a valid name")
       .required("Please enter your name"),
     email: yup
       .string()
@@ -29,22 +29,18 @@ const schema = yup
       .string()
       .min(6)
       .max(6)
-      .required("ConfirmPassword is required")
+      .required("Confirm Password is required")
       .trim(),
   })
   .required();
 
-const Register = (props) => {
-  Register.propTypes = {
-    history: PropTypes.shape({
-      push: PropTypes.func.isRequired,
-    }).isRequired,
-  };
+const Register = () => {
+  const history = useHistory();
 
-  const { history } = props;
   const inputValues = {
-    email: "admin@dreamguys.co.in",
-    password: "123456",
+    register_name: "",
+    register_email: "",
+    register_password: "",
   };
 
   const { handleSubmit, setError, clearErrors } = useForm({
@@ -52,19 +48,30 @@ const Register = (props) => {
     defaultValues: inputValues,
   });
 
-  const onSubmit = (data) => {
-    if (data.password !== "123456") {
-      setError("password", {
-        message: "password is mismatch",
-      });
-    } else {
-      clearErrors("password");
-      history.push("login");
+  const [inputData, setInputdata] = useState(inputValues);
+
+  const handleData = (e) => {
+    setInputdata({ ...inputData, [e.target.name]: e.target.value });
+  };
+
+  const submitForm = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/auth/signup", inputData);
+      console.log(response);
+
+      if (response.data.status) {
+        // Redirect to login on successful registration
+        history.push("/login");
+      } else {
+        console.log("Registration failed: ", response.data.msg);
+      }
+    } catch (error) {
+      console.error("Error during registration: ", error);
     }
   };
 
   return (
-    <div className="main-wrapper  login-body">
+    <div className="main-wrapper login-body">
       <div className="login-wrapper">
         <div className="container">
           <img
@@ -80,28 +87,52 @@ const Register = (props) => {
                 <p className="account-subtitle">Access to our dashboard</p>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(submitForm)}>
                   <div className="input-block mb-3">
                     <label className="form-control-label">Name</label>
-                    <input className="form-control" type="text" />
+                    <input
+                      className="form-control"
+                      type="text"
+                      name="register_name"
+                      value={inputData.register_name}
+                      onChange={handleData}
+                    />
                   </div>
                   <div className="input-block mb-3">
                     <label className="form-control-label">Email Address</label>
-                    <input className="form-control" type="text" />
+                    <input
+                      className="form-control"
+                      type="text"
+                      name="register_email"
+                      value={inputData.register_email}
+                      onChange={handleData}
+                    />
                   </div>
                   <div className="input-block mb-3">
                     <label className="form-control-label">Password</label>
-                    <input className="form-control" type="text" />
+                    <input
+                      className="form-control"
+                      type="password"
+                      name="register_password"
+                      value={inputData.register_password}
+                      onChange={handleData}
+                    />
                   </div>
                   <div className="input-block mb-3">
-                    <label className="form-control-label">
-                      Confirm Password
-                    </label>
-                    <input className="form-control" type="text" />
+                    <label className="form-control-label">Confirm Password</label>
+                    <input
+                      className="form-control"
+                      type="password"
+                      name="confirm_password"
+                      onChange={handleData}
+                    />
                   </div>
                   <div className="input-block mb-0">
-                    <button className="btn btn-lg btn-block btn-primary w-100">
-                      <Link to="/login">Register</Link>
+                    <button
+                      type="submit"
+                      className="btn btn-lg btn-block btn-primary w-100"
+                    >
+                      Register
                     </button>
                   </div>
                 </form>
@@ -133,4 +164,5 @@ const Register = (props) => {
     </div>
   );
 };
+
 export default Register;

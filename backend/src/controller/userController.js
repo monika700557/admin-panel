@@ -1,54 +1,35 @@
 const userService = require("../services/userServices");
 
 exports.signup = async (req, res) => {
+  const { register_name, register_email, register_password, register_number } = req.body;
 
-  const { register_name, register_email, register_password, register_number } =
-    req.body;
-
-  if (
-    !register_name ||
-    !register_email ||
-    !register_password ||
-    !register_number
-  ) {
-    res.send({ status: false, msg: "Please fill required field." });
+  // Check for missing fields
+  if (!register_name || !register_email || !register_password || !register_number) {
+    return res.send({ status: false, msg: "Please fill required fields." });
   }
 
-  // check already email exist or not
   try {
+    // Check if the email is already registered
     const isUserEmail = await userService.isRegisteredUser(register_email);
-
-    // Do something with isUserEmail if needed
-    console.log(isUserEmail);
     
     if (isUserEmail) {
-      return res.send({
-        status: false,
-        msg: "User Already Registered",
-        data: {},
-      });
+      return res.send({ status: false, msg: "User Already Registered", data: {} });
     }
+
+    // Register the user if the email is not already registered
+    await userService.registerUser(register_name, register_email, register_password, register_number);
+
+    // Send success response
+    return res.send({
+      status: true,
+      msg: "User Registered Successfully",
+      data: req.body,
+    });
   } catch (err) {
-    console.log(err.message);
+    // Handle errors and send error response
+    console.error("Error during user registration:", err.message);
+    return res.status(500).send({ status: false, msg: "Server Error", error: err.message });
   }
-
-  // if email is already exist
-
-  // res.send({status: true, msg: "Email already regitered", data: {} })
-
-  // if email not exist then register user
-  await userService.registerUser(
-    register_name,
-    register_email,
-    register_password,
-    register_number
-  );
-
-  res.send({
-    status: true,
-    msg: "User Registered Successfully",
-    data: req.body,
-  });
 };
 
 
