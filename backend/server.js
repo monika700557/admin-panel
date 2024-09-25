@@ -1,6 +1,11 @@
 require('dotenv').config()
 var express = require('express');
 var app = express();
+
+
+const cors = require("cors");
+app.use(cors({ origin: 'http://localhost:5173' }));
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.json())
  
@@ -11,8 +16,6 @@ const db = require('./src/config/db.config.js');
 const Role = db.role;
 
 
-const cors = require("cors");
-app.use(cors());
 
 
 // email, username, password, number, company_id 
@@ -28,7 +31,7 @@ var server = app.listen(8080, function () {
   var host = server.address().address
   var port = server.address().port
  
-  console.log("App listening at http://%s:%s", host, port)
+  console.log("App listening at http://localhost:8080", host, port)
 })
 
 
